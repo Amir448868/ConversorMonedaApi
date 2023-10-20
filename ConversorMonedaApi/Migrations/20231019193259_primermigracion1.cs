@@ -5,7 +5,7 @@
 namespace ConversorMonedaApi.Migrations
 {
     /// <inheritdoc />
-    public partial class migracion3 : Migration
+    public partial class primermigracion1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

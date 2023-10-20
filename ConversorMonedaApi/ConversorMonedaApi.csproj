@@ -21,6 +21,7 @@
     <Folder Include="Data\Implementations\" />
     <Folder Include="Data\Interfaces\" />
     <Folder Include="Data\Migrations\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

@@ -11,6 +11,21 @@ namespace ConversorMonedaApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Currencies",
+                columns: table => new
+                {
+                    MonedaId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Symbol = table.Column<string>(type: "TEXT", nullable: false),
+                    Value = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Currencies", x => x.MonedaId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -31,9 +46,9 @@ namespace ConversorMonedaApi.Migrations
                 {
                     ConversionId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    FromCurrency = table.Column<string>(type: "TEXT", nullable: false),
-                    ToCurrency = table.Column<string>(type: "TEXT", nullable: false),
-                    Amount = table.Column<double>(type: "REAL", nullable: false),
+                    CurrencyFromId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CurrencyToId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Amount = table.Column<int>(type: "INTEGER", nullable: false),
                     Result = table.Column<double>(type: "REAL", nullable: false),
                     Date = table.Column<string>(type: "TEXT", nullable: false),
                     UserId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -41,6 +56,18 @@ namespace ConversorMonedaApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Conversions", x => x.ConversionId);
+                    table.ForeignKey(
+                        name: "FK_Conversions_Currencies_CurrencyFromId",
+                        column: x => x.CurrencyFromId,
+                        principalTable: "Currencies",
+                        principalColumn: "MonedaId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Conversions_Currencies_CurrencyToId",
+                        column: x => x.CurrencyToId,
+                        principalTable: "Currencies",
+                        principalColumn: "MonedaId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Conversions_Users_UserId",
                         column: x => x.UserId,
@@ -69,6 +96,16 @@ namespace ConversorMonedaApi.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Conversions_CurrencyFromId",
+                table: "Conversions",
+                column: "CurrencyFromId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Conversions_CurrencyToId",
+                table: "Conversions",
+                column: "CurrencyToId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Conversions_UserId",
                 table: "Conversions",
                 column: "UserId");
@@ -87,6 +124,9 @@ namespace ConversorMonedaApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "RequestsLog");
+
+            migrationBuilder.DropTable(
+                name: "Currencies");
 
             migrationBuilder.DropTable(
                 name: "Users");

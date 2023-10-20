@@ -9,6 +9,8 @@ namespace ConversorMonedaApi.Data
         public DbSet<Conversion> Conversions { get; set; }
         public DbSet<User> Users { get; set; }
 
+        public DbSet<Currency> Currencies { get; set; }
+
         public DbSet<ResquestLog> RequestsLog { get; set; }
 
         public ConversorContext(DbContextOptions<ConversorContext> options) : base(options)
@@ -25,6 +27,16 @@ namespace ConversorMonedaApi.Data
                 .HasMany(u => u.Conversions)
                 .WithOne(c => c.User)
                 .HasForeignKey(c => c.UserId);
+
+             modelBuilder.Entity<Conversion>()
+                .HasOne(c => c.CurrencyFrom)
+                .WithMany()
+                .HasForeignKey(c => c.CurrencyFromId);
+
+            modelBuilder.Entity<Conversion>()
+                .HasOne(c => c.CurrencyTo)
+                .WithMany()
+                .HasForeignKey(c => c.CurrencyToId);
 
             base.OnModelCreating(modelBuilder);
         }

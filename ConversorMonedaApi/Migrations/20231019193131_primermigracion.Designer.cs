@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConversorMonedaApi.Migrations
 {
     [DbContext(typeof(ConversorContext))]
-    [Migration("20231016141353_primermigracion")]
+    [Migration("20231019193131_primermigracion")]
     partial class primermigracion
     {
         /// <inheritdoc />
@@ -25,32 +25,55 @@ namespace ConversorMonedaApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("REAL");
+                    b.Property<int>("Amount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CurrencyFromId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CurrencyToId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Date")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FromCurrency")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<double>("Result")
                         .HasColumnType("REAL");
 
-                    b.Property<string>("ToCurrency")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ConversionId");
 
+                    b.HasIndex("CurrencyFromId");
+
+                    b.HasIndex("CurrencyToId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Conversions");
+                });
+
+            modelBuilder.Entity("ConversorMonedaApi.Entities.Currency", b =>
+                {
+                    b.Property<int>("MonedaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Symbol")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("MonedaId");
+
+                    b.ToTable("Currencies");
                 });
 
             modelBuilder.Entity("ConversorMonedaApi.Entities.ResquestLog", b =>
@@ -93,11 +116,27 @@ namespace ConversorMonedaApi.Migrations
 
             modelBuilder.Entity("ConversorMonedaApi.Entities.Conversion", b =>
                 {
+                    b.HasOne("ConversorMonedaApi.Entities.Currency", "CurrencyFrom")
+                        .WithMany()
+                        .HasForeignKey("CurrencyFromId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ConversorMonedaApi.Entities.Currency", "CurrencyTo")
+                        .WithMany()
+                        .HasForeignKey("CurrencyToId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ConversorMonedaApi.Entities.User", "User")
                         .WithMany("Conversions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CurrencyFrom");
+
+                    b.Navigation("CurrencyTo");
 
                     b.Navigation("User");
                 });

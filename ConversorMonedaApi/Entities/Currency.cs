@@ -1,16 +1,20 @@
-﻿namespace ConversorMonedaApi.Entities
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ConversorMonedaApi.Entities
 {
     public class Currency
     {
-        public int Id { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+
+        public int MonedaId { get; set; }
 
         public string? Name { get; set; }
 
-        public decimal Symbol { get; set; }
+        public string Symbol { get; set; }
 
-        public string Value { get; set; }
-
-
+        public double Value { get; set; }
 
     }
 }

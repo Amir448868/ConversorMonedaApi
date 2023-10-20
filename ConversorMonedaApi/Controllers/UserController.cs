@@ -1,6 +1,7 @@
 ﻿using ConversorMonedaApi.Data;
 using ConversorMonedaApi.Data.Models;
 using ConversorMonedaApi.Entities;
+using ConversorMonedaApi.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConversorMonedaApi.Controllers
@@ -22,17 +23,31 @@ namespace ConversorMonedaApi.Controllers
             {
                 UserName = userTocreate.UserName,
                 Password = userTocreate.Password,
-                RemainingRequests = 20
+                TypeUser = userTocreate.TypeUser,
+                RemainingRequests = TypeUserHelper.GetRole(userTocreate.TypeUser)
             };
             _context.Users.Add(user);
             _context.SaveChanges();
             return Ok(user);
         }
-
+        
         [HttpGet]
         public IActionResult Get()
         {
             return Ok(_context.Users.ToList());
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var user = _context.Users.Find(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            _context.Users.Remove(user);
+            _context.SaveChanges();
+            return Ok();
         }
     }
 }

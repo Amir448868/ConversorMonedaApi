@@ -11,6 +11,8 @@ namespace ConversorMonedaApi.Entities
         public string UserName { get; set; }
         public string Password { get; set; }
 
+        public string TypeUser { get; set; }
+
         public int RemainingRequests { get; set; }
 
         public List<ResquestLog> RequestLogs { get; set; }

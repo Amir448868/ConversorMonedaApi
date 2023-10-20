@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace ConversorMonedaApi.Controllers
 {
@@ -27,34 +29,44 @@ namespace ConversorMonedaApi.Controllers
         
         public IActionResult Post([FromQuery] ConversionForCreate conversionTocreate )
         {
-            var conversion = new Conversion
+            var currencyFrom = _context.Currencies.SingleOrDefault(c => c.Symbol == conversionTocreate.FromCurrency);
+            var currencyTo = _context.Currencies.SingleOrDefault(c => c.Symbol == conversionTocreate.ToCurrency);
+
+            if (currencyFrom == null || currencyTo == null)
             {
-                FromCurrency = conversionTocreate.FromCurrency,
-                ToCurrency = conversionTocreate.ToCurrency,
-                Amount = conversionTocreate.Amount,
-                Result = ConversionServices.Convert(conversionTocreate.FromCurrency, conversionTocreate.ToCurrency, conversionTocreate.Amount),
-                UserId = conversionTocreate.UserId,
-                Date= DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")
-
-            };
-
-            int requestCount = _context.RequestsLog.Count(r => r.UserId == conversionTocreate.UserId);
-
-            if (requestCount >= 1)
-            {
-                return BadRequest("Has alcanzado el límite de 20 solicitudes.");
+                return BadRequest("Las monedas especificadas no existen en la base de datos.");
             }
 
-            var requestLog = new ResquestLog
+            var conversion = new Conversion
             {
+                CurrencyFromId = currencyFrom.MonedaId,
+                CurrencyToId = currencyTo.MonedaId,
+                Amount = conversionTocreate.Amount,
+                Result = ConversionServices.Convert(conversionTocreate.Amount,currencyFrom,currencyTo),
                 UserId = conversionTocreate.UserId,
-                
+                Date = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")
             };
 
+
+            int remainingRequests = _context.Users.Find(conversionTocreate.UserId).RemainingRequests;
+
+
+
+            if (remainingRequests == 0)
+            {
+                return BadRequest("Has alcanzado el límite de solicitudes.");
+            }
+
+            remainingRequests--;
+            _context.Users.Find(conversionTocreate.UserId).RemainingRequests = remainingRequests;
+
+
+
+
+
             _context.Conversions.Add(conversion);
-            _context.RequestsLog.Add(requestLog);
             _context.SaveChanges();
-            return Ok(conversion);
+            return Ok(conversion.Result);
         }
 
 
@@ -65,5 +77,12 @@ namespace ConversorMonedaApi.Controllers
         {
             return Ok(_context.Conversions.ToList());
         }
+
+        [HttpGet("{Userid}")]
+        public IActionResult Get(int Userid)
+        {
+            return Ok(_context.Conversions.Where(c => c.UserId == Userid).ToList());
+        }
+       
     }
 }

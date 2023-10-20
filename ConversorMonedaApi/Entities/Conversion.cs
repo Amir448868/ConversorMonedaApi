@@ -8,12 +8,19 @@ namespace ConversorMonedaApi.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ConversionId { get; set; }
-        public string FromCurrency { get; set; } //moneda de origen
-        public string ToCurrency { get; set; } //moneda de destino
+
+        // Cambiar el tipo de las propiedades relacionadas con las monedas a objetos Currency
+        public int CurrencyFromId { get; set; } // moneda de origen
+        public int CurrencyToId { get; set; } // moneda de destino
+
         public int Amount { get; set; }
         public double Result { get; set; }
         public string Date { get; set; }
         public int UserId { get; set; }
+
+        // Propiedades de navegación para las monedas de origen y destino
+        public Currency CurrencyFrom { get; set; }
+        public Currency CurrencyTo { get; set; }
         public User User { get; set; }
     }
 }

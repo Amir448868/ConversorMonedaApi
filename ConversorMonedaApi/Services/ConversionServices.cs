@@ -6,39 +6,25 @@ namespace ConversorMonedaApi.Services
 {
     public class ConversionServices
     {
-        
-        public static int Convert(string FromCurrency, string ToCurrency, int Amount)
+
+        public static double Convert(double amount, Currency fromCurrency, Currency toCurrency)
         {
-            if (FromCurrency == "ARS")
+            if (fromCurrency != null && toCurrency != null)
             {
-                if (ToCurrency == "ARS")
+                if (fromCurrency.MonedaId == toCurrency.MonedaId)
                 {
-                    return Amount;
+                    return amount; // Misma moneda, no se requiere conversión.
                 }
-                else if (ToCurrency == "USD")
+
+                if (fromCurrency.Value > 0 && toCurrency.Value > 0)
                 {
-                    return Amount / 95;
-                }
-                else if (ToCurrency == "EUR")
-                {
-                    return Amount / 115;
-                }
-                else if (ToCurrency == "GBP")
-                {
-                    return Amount / 135;
-                }
-                else
-                {
-                    return 0;
+                    return amount * fromCurrency.Value / toCurrency.Value;
                 }
             }
-            else
-            {
-                return 0;
-            }
+
+            return 0; // Si no se pueden obtener tasas de cambio válidas, devuelve 0.
         }
 
-       
     }
 }
 /*Este servicio sería responsable de realizar las conversiones de moneda.
