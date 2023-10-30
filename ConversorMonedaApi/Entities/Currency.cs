@@ -12,7 +12,7 @@ namespace ConversorMonedaApi.Entities
 
         public string? Name { get; set; }
 
-        public string Symbol { get; set; }
+        public string? Symbol { get; set; }
 
         public double Value { get; set; }
 

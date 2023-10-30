@@ -1,4 +1,5 @@
 using ConversorMonedaApi.Data;
+using ConversorMonedaApi.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConversorMonedaApi
@@ -17,7 +18,10 @@ namespace ConversorMonedaApi
             builder.Services.AddSwaggerGen();
             builder.Services.AddDbContext<ConversorContext>(dbContextOptions => dbContextOptions.UseSqlite(
     builder.Configuration["ConnectionStrings:ConversorAPIDBConnectionString"]));
- 
+            builder.Services.AddScoped<UserServices>();
+            builder.Services.AddScoped<CurrencyServices>();
+            builder.Services.AddScoped<ConversionServices>();
+
 
             var app = builder.Build();
 

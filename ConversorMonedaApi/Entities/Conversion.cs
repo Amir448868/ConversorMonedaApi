@@ -15,12 +15,12 @@ namespace ConversorMonedaApi.Entities
 
         public int Amount { get; set; }
         public double Result { get; set; }
-        public string Date { get; set; }
+        public string? Date { get; set; }
         public int UserId { get; set; }
 
         // Propiedades de navegación para las monedas de origen y destino
-        public Currency CurrencyFrom { get; set; }
-        public Currency CurrencyTo { get; set; }
-        public User User { get; set; }
+        public Currency? CurrencyFrom { get; set; }
+        public Currency? CurrencyTo { get; set; }
+        public User? User { get; set; }
     }
 }

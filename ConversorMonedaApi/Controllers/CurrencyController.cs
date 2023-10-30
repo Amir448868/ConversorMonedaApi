@@ -1,6 +1,7 @@
 ﻿using ConversorMonedaApi.Data;
 using ConversorMonedaApi.Data.Models;
 using ConversorMonedaApi.Entities;
+using ConversorMonedaApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConversorMonedaApi.Controllers
@@ -10,27 +11,28 @@ namespace ConversorMonedaApi.Controllers
         [ApiController]
         public class CurrencyController : ControllerBase
         {
-            private readonly ConversorContext _context;
 
-            public CurrencyController(ConversorContext context)
+            private readonly CurrencyServices _currencyServices;
+
+            public CurrencyController(CurrencyServices currencyServices )
             {
-                _context = context;
+                _currencyServices = currencyServices;
             }
 
             // Endpoint para obtener todas las monedas
             [HttpGet]
-            public ActionResult<IEnumerable<Currency>> Get()
+            public ActionResult<Currency> Get()
             {
-                var currencies = _context.Currencies.ToList();
-                return Ok(currencies);
+       
+                return Ok(_currencyServices.GetAll());
             }
 
             // Endpoint para obtener una moneda por ID
             [HttpGet("{id}")]
             public ActionResult<Currency> Get(int id)
             {
-                var currency = _context.Currencies.Find(id);
-                if (currency == null)
+            var currency = _currencyServices.GetById(id);
+            if (currency == null)
                 {
                     return NotFound();
                 }
@@ -39,49 +41,37 @@ namespace ConversorMonedaApi.Controllers
 
             // Endpoint para crear una nueva moneda
             [HttpPost]
-            public ActionResult<Currency> Post([FromBody] CurrencyForCreate currencyTocreate)
+            public ActionResult<Currency> Post([FromBody] CurrencyForCreate currencyToCreate)
             {
-                var currency = new Currency
-                {
-                    Name = currencyTocreate.Name,
-                    Symbol = currencyTocreate.Symbol,
-                    Value = currencyTocreate.Value
-                };
-                _context.Currencies.Add(currency);
-                _context.SaveChanges();
-                return CreatedAtAction(nameof(Get), new { id = currency.MonedaId }, currency);
+            var currency = _currencyServices.CreateCurrency(currencyToCreate);
+
+            // Retorna un objeto ActionResult con CreatedAtAction para indicar la creación exitosa.
+            return CreatedAtAction(nameof(Get), new { id = currency.MonedaId }, currency);
             }
 
             // Endpoint para actualizar una moneda por ID
             [HttpPut("{id}")]
             public IActionResult Put(int id, [FromBody] CurrencyForCreate updatedCurrency)
             {
-                var currency = _context.Currencies.Find(id);
-                if (currency == null)
-                {
-                    return NotFound();
-                }
+            var updatedCurrencyEntity = _currencyServices.UpdateCurrency(id, updatedCurrency);
 
-                currency.Value = updatedCurrency.Value;
+            if (updatedCurrencyEntity == null)
+            {
+                return NotFound();
+            }
 
-                _context.SaveChanges();
-
-                return NoContent();
+            return NoContent();
             }
 
             [HttpDelete("{id}")]
             public IActionResult Delete(int id)
             {
-                var currency = _context.Currencies.Find(id);
-                if (currency == null)
-                {
-                    return NotFound();
-                }
+            if (!_currencyServices.DeleteCurrency(id))
+            {
+                return NotFound();
+            }
 
-                _context.Currencies.Remove(currency);
-                _context.SaveChanges();
-
-                return NoContent();
+            return NoContent();
             }
         }
 

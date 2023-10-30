@@ -11,17 +11,18 @@ namespace ConversorMonedaApi.Data
 
         public DbSet<Currency> Currencies { get; set; }
 
-        public DbSet<ResquestLog> RequestsLog { get; set; }
+        public DbSet<RemainingRequest> RemainingRequests { get; set; }
 
         public ConversorContext(DbContextOptions<ConversorContext> options) : base(options)
         { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.RequestLogs)
-                .WithOne(r => r.User)
-                .HasForeignKey(r => r.UserId);
+            RemainingRequest Free = new RemainingRequest {RequestId=1,TypeUser = "free", Value = 10 };
+            RemainingRequest Trial = new RemainingRequest {RequestId = 2, TypeUser = "trial", Value = 100 };
+            RemainingRequest Premium = new RemainingRequest { RequestId = 3, TypeUser = "premium", Value = 1000000000};
+            modelBuilder.Entity<RemainingRequest>().HasData(Free, Trial, Premium);
+
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Conversions)

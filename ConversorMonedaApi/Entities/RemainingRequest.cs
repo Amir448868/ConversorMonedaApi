@@ -3,14 +3,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ConversorMonedaApi.Entities
 {
-    public class ResquestLog
+    public class RemainingRequest
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RequestId { get; set; }
 
-        public int UserId { get; set; }
+        public string TypeUser { get; set; }
 
-        public User User { get; set; }
+        public int Value { get; set; }
+
+     
     }
 }

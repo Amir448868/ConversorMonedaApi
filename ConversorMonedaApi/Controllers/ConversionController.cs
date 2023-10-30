@@ -15,73 +15,46 @@ namespace ConversorMonedaApi.Controllers
     [Route("api/[controller]")]
     public class ConversionController: ControllerBase
     {
-        private readonly ConversorContext _context;
-        public ConversionController(ConversorContext context)
+        private readonly ConversionServices _conversionServices;
+        public ConversionController( ConversionServices conversionServices)
         {
-            _context = context;
+            _conversionServices = conversionServices;
         }
 
-        
-       
+
+
 
         [HttpPost]
 
         
-        public IActionResult Post([FromQuery] ConversionForCreate conversionTocreate )
+        public IActionResult Post([FromQuery] ConversionForCreate conversionToCreate )
         {
-            var currencyFrom = _context.Currencies.SingleOrDefault(c => c.Symbol == conversionTocreate.FromCurrency);
-            var currencyTo = _context.Currencies.SingleOrDefault(c => c.Symbol == conversionTocreate.ToCurrency);
+            var conversion = _conversionServices.CreateConversion(conversionToCreate);
 
-            if (currencyFrom == null || currencyTo == null)
+            if (conversion == null)
             {
                 return BadRequest("Las monedas especificadas no existen en la base de datos.");
             }
 
-            var conversion = new Conversion
-            {
-                CurrencyFromId = currencyFrom.MonedaId,
-                CurrencyToId = currencyTo.MonedaId,
-                Amount = conversionTocreate.Amount,
-                Result = ConversionServices.Convert(conversionTocreate.Amount,currencyFrom,currencyTo),
-                UserId = conversionTocreate.UserId,
-                Date = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")
-            };
-
-
-            int remainingRequests = _context.Users.Find(conversionTocreate.UserId).RemainingRequests;
-
-
-
-            if (remainingRequests == 0)
+            if (!_conversionServices.DeductRemainingRequest(conversionToCreate.UserId))
             {
                 return BadRequest("Has alcanzado el límite de solicitudes.");
             }
 
-            remainingRequests--;
-            _context.Users.Find(conversionTocreate.UserId).RemainingRequests = remainingRequests;
-
-
-
-
-
-            _context.Conversions.Add(conversion);
-            _context.SaveChanges();
+            
             return Ok(conversion.Result);
         }
 
-
-     
-
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult GetAllCurrencies()
         {
-            return Ok(_context.Conversions.ToList());
+            return Ok(_conversionServices.GetConversions());
         }
 
         [HttpGet("{Userid}")]
         public IActionResult Get(int Userid)
         {
-            return Ok(_context.Conversions.Where(c => c.UserId == Userid).ToList());
+            return Ok(_conversionServices.GetConversionById(Userid));
         }
        
     }

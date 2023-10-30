@@ -1,7 +1,7 @@
 ﻿using ConversorMonedaApi.Data;
 using ConversorMonedaApi.Data.Models;
 using ConversorMonedaApi.Entities;
-using ConversorMonedaApi.Helpers;
+using ConversorMonedaApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConversorMonedaApi.Controllers
@@ -10,48 +10,36 @@ namespace ConversorMonedaApi.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly ConversorContext _context;
-        public UserController(ConversorContext context)
+      
+        private readonly UserServices _userServices;
+        public UserController( UserServices userServices)
         {
-            _context = context;
+            _userServices = userServices;
         }
 
         [HttpPost]
         public IActionResult Post([FromQuery] UserForCreation userTocreate )
         {
-            var user = new User
-            {
-                UserName = userTocreate.UserName,
-                Password = userTocreate.Password,
-                TypeUser = userTocreate.TypeUser,
-                RemainingRequests = TypeUserHelper.GetRole(userTocreate.TypeUser)
-            };
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            var user = _userServices.CreateUser(userTocreate);
             return Ok(user);
         }
-        
+
+
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(_context.Users.ToList());
+            return Ok(_userServices.GetUsers());
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var user = _context.Users.Find(id);
+            var user = _userServices.GetUserById(id);
             if (user == null)
             {
                 return NotFound();
             }
-            _context.Users.Remove(user);
-            _context.SaveChanges();
-            return Ok();
+            return Ok(user);
         }
     }
 }
-/*
- Este controlador se encargaría de las operaciones relacionadas con la gestión de usuarios, como el registro, inicio de sesión,
-recuperación de contraseñas y cualquier operación relacionada con la autenticación y gestión de cuentas de usuario.
- */

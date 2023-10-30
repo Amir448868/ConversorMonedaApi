@@ -2,6 +2,7 @@
 using ConversorMonedaApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConversorMonedaApi.Migrations
 {
     [DbContext(typeof(ConversorContext))]
-    partial class ConversorContextModelSnapshot : ModelSnapshot
+    [Migration("20231026025548_Migracion4")]
+    partial class Migracion4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.12");
@@ -89,26 +92,6 @@ namespace ConversorMonedaApi.Migrations
                     b.HasKey("RequestId");
 
                     b.ToTable("RemainingRequests");
-
-                    b.HasData(
-                        new
-                        {
-                            RequestId = 1,
-                            TypeUser = "free",
-                            Value = 10
-                        },
-                        new
-                        {
-                            RequestId = 2,
-                            TypeUser = "trial",
-                            Value = 100
-                        },
-                        new
-                        {
-                            RequestId = 3,
-                            TypeUser = "premium",
-                            Value = 1000000000
-                        });
                 });
 
             modelBuilder.Entity("ConversorMonedaApi.Entities.User", b =>
