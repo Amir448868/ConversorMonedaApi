@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ConversorMonedaApi.Data.Models.Enum;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ConversorMonedaApi.Entities
@@ -13,7 +14,9 @@ namespace ConversorMonedaApi.Entities
 
         public string? TypeUser { get; set; }
 
-        public int RemainingRequests { get; set; }
+        public int ConversionCounter { get; set; }
+
+        public Role Role { get; set; } = Role.User;
 
         public List<Conversion>? Conversions { get; set; }
 

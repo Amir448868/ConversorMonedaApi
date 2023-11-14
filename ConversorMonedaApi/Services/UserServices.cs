@@ -1,5 +1,5 @@
 ﻿using ConversorMonedaApi.Data;
-using ConversorMonedaApi.Data.Models;
+using ConversorMonedaApi.Data.Models.Dtos;
 using ConversorMonedaApi.Entities;
 
 namespace ConversorMonedaApi.Services
@@ -12,6 +12,10 @@ namespace ConversorMonedaApi.Services
             _context = context;
         }
 
+        public User? ValidateUser(AuthenticationRequestDto authRequestBody)
+        {
+            return _context.Users.FirstOrDefault(p => p.UserName == authRequestBody.UserName && p.Password == authRequestBody.Password);
+        }
         public User CreateUser(UserForCreation userToCreate)
         {
             var user = new User
@@ -19,8 +23,19 @@ namespace ConversorMonedaApi.Services
                 UserName = userToCreate.UserName,
                 Password = userToCreate.Password,
                 TypeUser = userToCreate.TypeUser,
-                RemainingRequests = GetRemainingRequestsForTypeUser(userToCreate.TypeUser)
+
+
             };
+
+            if (userToCreate.UserName==null || userToCreate.Password==null)
+            {
+                return null;
+            }
+
+            if (userToCreate.TypeUser == null)
+            {
+                user.TypeUser = "free";
+            }
 
             _context.Users.Add(user);
             _context.SaveChanges();
@@ -30,7 +45,7 @@ namespace ConversorMonedaApi.Services
 
         private int GetRemainingRequestsForTypeUser(string typeUser)
         {
-            var remainingRequest = _context.RemainingRequests
+            var remainingRequest = _context.Subscriptions
                 .FirstOrDefault(r => r.TypeUser == typeUser);
 
             if (remainingRequest != null)
@@ -58,6 +73,29 @@ namespace ConversorMonedaApi.Services
             _context.SaveChanges();
             return user;
         }
+
+        public User? UpdateUser(int Userid, UserForUpdate userToUpdate)
+        {
+            User userEntity = _context.Users.First(u => u.UserId == Userid);
+
+            if (userEntity == null)
+            {
+                return null;
+            }
+            if (userToUpdate.UserName == null)
+            {
+                userEntity.UserName = userEntity.UserName;
+            }
+            userEntity.UserName = userToUpdate.UserName;
+            userEntity.TypeUser = userToUpdate.TypeUser;
+            
+
+            _context.SaveChanges();
+
+            return userEntity;
+
+        }
+        
     }
 }
 /*

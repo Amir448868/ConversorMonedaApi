@@ -1,8 +1,13 @@
 ﻿using ConversorMonedaApi.Data;
-using ConversorMonedaApi.Data.Models;
+using ConversorMonedaApi.Data.Models.Dtos;
 using ConversorMonedaApi.Entities;
 using ConversorMonedaApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Security.Claims;
+
+//string role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
 
 namespace ConversorMonedaApi.Controllers
 {
@@ -18,16 +23,22 @@ namespace ConversorMonedaApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromQuery] UserForCreation userTocreate )
+        public IActionResult Post([FromBody] UserForCreation userTocreate )
         {
             var user = _userServices.CreateUser(userTocreate);
+            if (user == null)
+            {
+                return BadRequest();
+            }
             return Ok(user);
         }
 
 
         [HttpGet]
+        
         public IActionResult Get()
         {
+
             return Ok(_userServices.GetUsers());
         }
 
@@ -40,6 +51,22 @@ namespace ConversorMonedaApi.Controllers
                 return NotFound();
             }
             return Ok(user);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromBody] UserForUpdate updatedUser)
+        {
+
+            var updatedUserEntity = _userServices.UpdateUser(id, updatedUser);
+            /*var roles = User.Claims.FirstOrDefault(c => c.Type == "Role").Value;
+            if (roles != "Admin") return Unauthorized();*/
+
+            if (updatedUserEntity == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedUserEntity);
         }
     }
 }

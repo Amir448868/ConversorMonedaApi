@@ -1,5 +1,5 @@
 ﻿using ConversorMonedaApi.Data;
-using ConversorMonedaApi.Data.Models;
+using ConversorMonedaApi.Data.Models.Dtos;
 using ConversorMonedaApi.Entities;
 
 namespace ConversorMonedaApi.Services

@@ -1,5 +1,4 @@
 ﻿using ConversorMonedaApi.Data;
-using ConversorMonedaApi.Data.Models;
 using ConversorMonedaApi.Entities;
 using ConversorMonedaApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +7,8 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using ConversorMonedaApi.Data.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ConversorMonedaApi.Controllers
 {
@@ -33,20 +34,21 @@ namespace ConversorMonedaApi.Controllers
 
             if (conversion == null)
             {
-                return BadRequest("Las monedas especificadas no existen en la base de datos.");
+                return BadRequest("La moneda no existe.");
             }
-
+          
             if (!_conversionServices.DeductRemainingRequest(conversionToCreate.UserId))
             {
-                return BadRequest("Has alcanzado el límite de solicitudes.");
+               return BadRequest("Has alcanzado el límite de solicitudes.");
             }
 
             
-            return Ok(conversion.Result);
+            return Ok(conversion);
         }
 
         [HttpGet]
-        public IActionResult GetAllCurrencies()
+   
+        public IActionResult GetAllConversions()
         {
             return Ok(_conversionServices.GetConversions());
         }

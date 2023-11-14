@@ -1,4 +1,5 @@
-﻿using ConversorMonedaApi.Entities;
+﻿using ConversorMonedaApi.Data.Models.Enum;
+using ConversorMonedaApi.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Emit;
 
@@ -7,21 +8,31 @@ namespace ConversorMonedaApi.Data
     public class ConversorContext : DbContext
     {
         public DbSet<Conversion> Conversions { get; set; }
+
         public DbSet<User> Users { get; set; }
 
         public DbSet<Currency> Currencies { get; set; }
 
-        public DbSet<RemainingRequest> RemainingRequests { get; set; }
+        public DbSet<Subscriptions> Subscriptions { get; set; }
 
         public ConversorContext(DbContextOptions<ConversorContext> options) : base(options)
         { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            RemainingRequest Free = new RemainingRequest {RequestId=1,TypeUser = "free", Value = 10 };
-            RemainingRequest Trial = new RemainingRequest {RequestId = 2, TypeUser = "trial", Value = 100 };
-            RemainingRequest Premium = new RemainingRequest { RequestId = 3, TypeUser = "premium", Value = 1000000000};
-            modelBuilder.Entity<RemainingRequest>().HasData(Free, Trial, Premium);
+            Subscriptions Free = new Subscriptions {RequestId=1,TypeUser = "free", Value = 10 };
+            Subscriptions Trial = new Subscriptions {RequestId = 2, TypeUser = "trial", Value = 100 };
+            Subscriptions Premium = new Subscriptions { RequestId = 3, TypeUser = "premium", Value = -1};
+            modelBuilder.Entity<Subscriptions>().HasData(Free, Trial, Premium);
+
+            User userAdmin = new User { 
+                UserId = 1, 
+                UserName = "string",
+                Password = "string",
+                TypeUser = "premium",
+                ConversionCounter = 0, 
+                Role = Role.Admin 
+            };
 
 
             modelBuilder.Entity<User>()

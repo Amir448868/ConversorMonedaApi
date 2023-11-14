@@ -2,6 +2,7 @@
 using ConversorMonedaApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConversorMonedaApi.Migrations
 {
     [DbContext(typeof(ConversorContext))]
-    partial class ConversorContextModelSnapshot : ModelSnapshot
+    [Migration("20231101010729_add-remainingrequest2")]
+    partial class addremainingrequest2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.12");
@@ -71,7 +74,7 @@ namespace ConversorMonedaApi.Migrations
                     b.ToTable("Currencies");
                 });
 
-            modelBuilder.Entity("ConversorMonedaApi.Entities.Subscriptions", b =>
+            modelBuilder.Entity("ConversorMonedaApi.Entities.RemainingRequest", b =>
                 {
                     b.Property<int>("RequestId")
                         .ValueGeneratedOnAdd()
@@ -86,7 +89,7 @@ namespace ConversorMonedaApi.Migrations
 
                     b.HasKey("RequestId");
 
-                    b.ToTable("Subscriptions");
+                    b.ToTable("RemainingRequests");
 
                     b.HasData(
                         new
@@ -105,7 +108,7 @@ namespace ConversorMonedaApi.Migrations
                         {
                             RequestId = 3,
                             TypeUser = "premium",
-                            Value = -1
+                            Value = 1000000000
                         });
                 });
 
@@ -115,13 +118,10 @@ namespace ConversorMonedaApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ConversionCounter")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Password")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Role")
+                    b.Property<int>("RemainingRequests")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("TypeUser")

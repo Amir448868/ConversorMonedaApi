@@ -1,5 +1,5 @@
 ﻿using ConversorMonedaApi.Data;
-using ConversorMonedaApi.Data.Models;
+using ConversorMonedaApi.Data.Models.Dtos;
 using ConversorMonedaApi.Entities;
 using SQLitePCL;
 
@@ -54,18 +54,21 @@ namespace ConversorMonedaApi.Services
         public bool DeductRemainingRequest(int userId)
         {
             var user = _context.Users.Find(userId);
+            var remainingRequest = _context.Subscriptions.FirstOrDefault(r => r.TypeUser == user.TypeUser);
+
             if (user == null)
             {
                 return false; // Puedes manejar el error adecuadamente, por ejemplo, lanzando una excepción personalizada.
             }
 
-            if (user.RemainingRequests == 0)
+            if (user.ConversionCounter == remainingRequest.Value)
             {
                 return false;
             }
-
-            user.RemainingRequests--;
+            user.ConversionCounter++;
+            _context.SaveChanges();
             return true;
+            
         }
 
 
