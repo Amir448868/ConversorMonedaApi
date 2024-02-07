@@ -1,5 +1,6 @@
 ﻿using ConversorMonedaApi.Data;
 using ConversorMonedaApi.Data.Models.Dtos;
+using ConversorMonedaApi.Data.Models.Enum;
 using ConversorMonedaApi.Entities;
 
 namespace ConversorMonedaApi.Services
@@ -18,24 +19,29 @@ namespace ConversorMonedaApi.Services
         }
         public User CreateUser(UserForCreation userToCreate)
         {
-            var user = new User
-            {
-                UserName = userToCreate.UserName,
-                Password = userToCreate.Password,
-                TypeUser = userToCreate.TypeUser,
-
-
-            };
-
-            if (userToCreate.UserName==null || userToCreate.Password==null)
+            if (userToCreate.UserName == null || userToCreate.Password == null)
             {
                 return null;
             }
 
             if (userToCreate.TypeUser == null)
             {
-                user.TypeUser = "free";
+                userToCreate.TypeUser = "free";
             }
+
+            
+            if (userToCreate.Roleid == null)
+            {
+                userToCreate.Roleid = (int)Role.User;
+            }
+
+            var user = new User
+            {
+                UserName = userToCreate.UserName,
+                Password = userToCreate.Password,
+                TypeUser = userToCreate.TypeUser,
+                Role = (Role)userToCreate.Roleid
+            };
 
             _context.Users.Add(user);
             _context.SaveChanges();
@@ -43,26 +49,31 @@ namespace ConversorMonedaApi.Services
             return user;
         }
 
-        private int GetRemainingRequestsForTypeUser(string typeUser)
-        {
-            var remainingRequest = _context.Subscriptions
-                .FirstOrDefault(r => r.TypeUser == typeUser);
 
-            if (remainingRequest != null)
+
+        public List<UserforFront> GetUsers()
+        {
+            var users = _context.Users.ToList();
+            var usersForFront = new List<UserforFront>();
+            foreach (var user in users)
             {
-                return remainingRequest.Value;
+                var subscription = _context.Subscriptions.FirstOrDefault(r => r.TypeUser == user.TypeUser);
+                var userForFront = new UserforFront
+                {
+                    userId = user.UserId,
+                    UserName = user.UserName,
+                    TypeUser = user.TypeUser,
+                    ConversionCounter = subscription.Value - user.ConversionCounter,
+                    Roleid = (int)user.Role
+                    
+                };
+                usersForFront.Add(userForFront);
             }
-
-            // En caso de que no se encuentre un valor válido, puedes establecer un valor predeterminado o manejarlo como desees.
-            return 0; // Valor predeterminado
+            return usersForFront;
+            
         }
 
-        public List<User> GetUsers()
-        {
-            return _context.Users.ToList();
-        }
-
-        public User GetUserById(int id)
+        public User DeleteUserById(int id)
         {
             var user = _context.Users.Find(id);
             if (user == null)
@@ -74,20 +85,35 @@ namespace ConversorMonedaApi.Services
             return user;
         }
 
+        public UserforFront GetUserById(int id)
+        {
+            User userEntity= _context.Users.Find(id);
+            if (userEntity == null)
+            {
+                return null;
+            }
+            var user = new UserforFront
+            {
+                UserName = userEntity.UserName,
+                TypeUser = userEntity.TypeUser,
+            };
+            return user;
+        }
         public User? UpdateUser(int Userid, UserForUpdate userToUpdate)
         {
-            User userEntity = _context.Users.First(u => u.UserId == Userid);
+            var userEntity = _context.Users.Find(Userid);
 
             if (userEntity == null)
             {
                 return null;
             }
-            if (userToUpdate.UserName == null)
+            if (userToUpdate.UserName == null || userToUpdate.UserName == "");
             {
                 userEntity.UserName = userEntity.UserName;
             }
             userEntity.UserName = userToUpdate.UserName;
             userEntity.TypeUser = userToUpdate.TypeUser;
+            userEntity.Role = (Role)userToUpdate.Roleid;
             
 
             _context.SaveChanges();
@@ -98,8 +124,3 @@ namespace ConversorMonedaApi.Services
         
     }
 }
-/*
- Este servicio gestionaría las operaciones relacionadas con la gestión de usuarios, como 
-el registro, inicio de sesión, recuperación de contraseñas, verificación de límites
-de solicitudes y cualquier operación relacionada con la autenticación y gestión de cuentas de usuario.
- */

@@ -16,6 +16,7 @@ namespace ConversorMonedaApi.Entities
 
         public int ConversionCounter { get; set; }
 
+
         public Role Role { get; set; } = Role.User;
 
         public List<Conversion>? Conversions { get; set; }

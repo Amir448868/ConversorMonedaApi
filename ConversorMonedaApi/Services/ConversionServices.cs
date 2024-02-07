@@ -19,10 +19,29 @@ namespace ConversorMonedaApi.Services
 
         }
 
-        public List<Conversion> GetConversionById(int Userid)
+
+        public List<ConversionWithCurrencyNames> GetConversionById(int userId)
         {
-            return _context.Conversions.Where(c => c.UserId == Userid).ToList();
+            var conversionsWithCurrencyNames = (
+                from conversion in _context.Conversions
+                join currencyFrom in _context.Currencies on conversion.CurrencyFromId equals currencyFrom.MonedaId
+                join currencyTo in _context.Currencies on conversion.CurrencyToId equals currencyTo.MonedaId
+                where conversion.UserId == userId
+                select new ConversionWithCurrencyNames
+                {
+                    ConversionId = conversion.ConversionId,
+                    CurrencyFromName = currencyFrom.Symbol,
+                    CurrencyToName = currencyTo.Symbol,
+                    Amount = conversion.Amount,
+                    Result = conversion.Result,
+                    Date = conversion.Date,
+                }
+            ).ToList();
+
+            return conversionsWithCurrencyNames;
         }
+
+
 
         public Conversion CreateConversion(ConversionForCreate conversionToCreate)
         {
@@ -51,6 +70,34 @@ namespace ConversorMonedaApi.Services
 
         }
 
+        public int GetRemainingRequest(int userId)
+        {
+            
+            var user = _context.Users.Find(userId);
+
+            if (user == null)
+            {
+               
+                return 0;
+            }
+
+            
+            var subscription = _context.Subscriptions.FirstOrDefault(r => r.TypeUser == user.TypeUser);
+
+            if (subscription == null)
+            {
+                return 0;
+            }
+
+            if (subscription.Value < 0)
+            {
+                return 0;
+            }
+
+            int remainingRequests = subscription.Value - user.ConversionCounter;
+
+            return Math.Max(0, remainingRequests);
+        }
         public bool DeductRemainingRequest(int userId)
         {
             var user = _context.Users.Find(userId);
@@ -93,7 +140,3 @@ namespace ConversorMonedaApi.Services
     }
 }
 
-/*Este servicio sería responsable de realizar las conversiones de moneda.
- * Debería incluir métodos para llevar a cabo las conversiones, 
- * registrarlas en la base de datos y verificar los límites de solicitudes por usuario. 
- * Además, puede ser útil para implementar lógica adicional, como la obtención de tasas de cambio actualizadas.*/

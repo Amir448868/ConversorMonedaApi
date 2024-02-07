@@ -17,12 +17,7 @@ namespace ConversorMonedaApi.Services
         {
             return _context.Currencies.ToList();
         }
-
-        public Currency GetById(int id)
-        {
-         return _context.Currencies.Find(id);
-        }
-
+       
         public Currency CreateCurrency(CurrencyForCreate currencyToCreate)
         {
             var currency = new Currency
@@ -47,6 +42,8 @@ namespace ConversorMonedaApi.Services
             }
 
             currency.Value = updatedCurrency.Value;
+            currency.Name = updatedCurrency.Name;
+            currency.Symbol = updatedCurrency.Symbol;
 
             _context.SaveChanges();
 

@@ -17,7 +17,7 @@ namespace ConversorMonedaApi.Data
 
         public ConversorContext(DbContextOptions<ConversorContext> options) : base(options)
         { }
-
+        //en onmodelcreating se establecen las relaciones entre las tablas y se insertan los datos iniciales
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             Subscriptions Free = new Subscriptions {RequestId=1,TypeUser = "free", Value = 10 };
@@ -39,16 +39,19 @@ namespace ConversorMonedaApi.Data
                 .HasMany(u => u.Conversions)
                 .WithOne(c => c.User)
                 .HasForeignKey(c => c.UserId);
+            //un usuario puede tener muchas conversiones
 
              modelBuilder.Entity<Conversion>()
                 .HasOne(c => c.CurrencyFrom)
                 .WithMany()
                 .HasForeignKey(c => c.CurrencyFromId);
+            //una conversion tiene una moneda de origen
 
             modelBuilder.Entity<Conversion>()
                 .HasOne(c => c.CurrencyTo)
                 .WithMany()
                 .HasForeignKey(c => c.CurrencyToId);
+            //una conversion tiene una moneda de destino
 
             base.OnModelCreating(modelBuilder);
         }

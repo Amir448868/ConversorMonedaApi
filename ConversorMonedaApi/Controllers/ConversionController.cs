@@ -2,11 +2,6 @@
 using ConversorMonedaApi.Entities;
 using ConversorMonedaApi.Services;
 using Microsoft.AspNetCore.Mvc;
-
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json.Serialization;
-using System.Text.Json;
 using ConversorMonedaApi.Data.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 
@@ -14,49 +9,52 @@ namespace ConversorMonedaApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ConversionController: ControllerBase
+    [Authorize]
+    public class ConversionController : ControllerBase
     {
         private readonly ConversionServices _conversionServices;
-        public ConversionController( ConversionServices conversionServices)
+        public ConversionController(ConversionServices conversionServices)
         {
             _conversionServices = conversionServices;
         }
 
 
-
-
         [HttpPost]
-
-        
-        public IActionResult Post([FromQuery] ConversionForCreate conversionToCreate )
+        public IActionResult Post([FromBody] ConversionForCreate conversionToCreate )
         {
-            var conversion = _conversionServices.CreateConversion(conversionToCreate);
-
-            if (conversion == null)
+            try
             {
-                return BadRequest("La moneda no existe.");
-            }
-          
-            if (!_conversionServices.DeductRemainingRequest(conversionToCreate.UserId))
-            {
-               return BadRequest("Has alcanzado el límite de solicitudes.");
-            }
+                if (!_conversionServices.DeductRemainingRequest(conversionToCreate.UserId))
+                {
+                    return BadRequest(new { mensaje = "Has alcanzado el límite de solicitudes." });
+                }
 
-            
-            return Ok(conversion);
+                var conversion = _conversionServices.CreateConversion(conversionToCreate);
+
+                if (conversion == null)
+                {
+                    return BadRequest(new { mensaje = "La moneda no existe." });
+                }
+
+                return Ok(conversion);
+            }
+            catch
+            {
+                return BadRequest(new { mensaje = "Error al crear la conversión." });
+            }
         }
 
-        [HttpGet]
-   
-        public IActionResult GetAllConversions()
-        {
-            return Ok(_conversionServices.GetConversions());
-        }
 
         [HttpGet("{Userid}")]
-        public IActionResult Get(int Userid)
+        public IActionResult Get(int userid)
         {
-            return Ok(_conversionServices.GetConversionById(Userid));
+                return Ok(_conversionServices.GetConversionById(userid));   
+        }
+
+        [HttpGet("GetRemainingRequest/{userId}")]
+        public IActionResult GetRemainingRequest(int userId)
+        {
+            return Ok(_conversionServices.GetRemainingRequest(userId));
         }
        
     }
