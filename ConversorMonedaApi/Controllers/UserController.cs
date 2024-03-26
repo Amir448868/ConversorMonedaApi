@@ -25,6 +25,7 @@ namespace ConversorMonedaApi.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult Post([FromBody] UserForCreation userTocreate )
         {
             try

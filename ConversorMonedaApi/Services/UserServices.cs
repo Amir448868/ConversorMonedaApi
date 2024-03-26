@@ -34,6 +34,10 @@ namespace ConversorMonedaApi.Services
             {
                 userToCreate.Roleid = (int)Role.User;
             }
+             var userExist = _context.Users.FirstOrDefault(p => p.UserName == userToCreate.UserName);
+
+            if (userExist==null)
+            { 
 
             var user = new User
             {
@@ -47,6 +51,11 @@ namespace ConversorMonedaApi.Services
             _context.SaveChanges();
 
             return user;
+            }
+            else
+            {
+                throw new Exception("El usuario ya existe");
+            }
         }
 
 
